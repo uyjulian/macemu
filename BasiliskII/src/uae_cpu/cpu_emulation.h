@@ -52,7 +52,6 @@ extern uint32 ROMBaseMac;		// ROM base (Mac address space)
 extern uint8 *ROMBaseHost;	// ROM base (host address space)
 extern uint32 ROMSize;		// Size of ROM
 #if 0
-extern uint32 RealROMSize;	// Real size of ROM
 extern memptr HWBase;		// HW base (Atari address space)
 extern uint8 *HWBaseHost;	// HW base (host address space)
 extern uint32 HWSize;		// Size of HW space
@@ -249,15 +248,14 @@ void check_eps_limit(uaecptr);
 void report_double_bus_error(void);
 
 #if 0
-// This function will be removed
-static inline uaecptr showPC(void) { return m68k_getpc(); }	// for debugging only
+// for debugging only
+static inline uaecptr showPC(void)
+{
+	return regs.real_pc ? regs.real_pc : m68k_getpc();
+}
 #endif
 
 extern int intlev(void);
 static inline void AtariReset(void) {}
 
 #endif
-
-/*
-vim:ts=4:sw=4:
-*/

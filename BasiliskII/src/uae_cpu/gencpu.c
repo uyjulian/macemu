@@ -2339,42 +2339,42 @@ static void gen_opcode (unsigned long int opcode)
      case i_CINVL:
 	printf ("\tflush_internals();\n");
         printf("#ifdef USE_JIT\n");
- 	printf ("\tif (opcode&0x80)\n"
+ 	printf ("\tif (real_opcode&0x80)\n"
 		"\t\tflush_icache();\n");
 	printf("#endif\n");
 	break;
      case i_CINVP:
 	printf ("\tflush_internals();\n");
         printf("#ifdef USE_JIT\n");
-	printf ("\tif (opcode&0x80)\n"
+	printf ("\tif (real_opcode&0x80)\n"
 		"\t\tflush_icache();\n");
 	printf("#endif\n");
 	break;
      case i_CINVA:
 	printf ("\tflush_internals();\n");
         printf("#ifdef USE_JIT\n");
-	printf ("\tif (opcode&0x80)\n"
+	printf ("\tif (real_opcode&0x80)\n"
 		"\t\tflush_icache();\n");
 	printf("#endif\n");
 	break;
      case i_CPUSHL:
 	printf ("\tflush_internals();\n");
         printf("#ifdef USE_JIT\n");
-	printf ("\tif (opcode&0x80)\n"
+	printf ("\tif (real_opcode&0x80)\n"
 		"\t\tflush_icache();\n");
 	printf("#endif\n");
 	break;
      case i_CPUSHP:
 	printf ("\tflush_internals();\n");
         printf("#ifdef USE_JIT\n");
-	printf ("\tif (opcode&0x80)\n"
+	printf ("\tif (real_opcode&0x80)\n"
 		"\t\tflush_icache();\n");
 	printf("#endif\n");
 	break;
      case i_CPUSHA:
 	printf ("\tflush_internals();\n");
         printf("#ifdef USE_JIT\n");
-	printf ("\tif (opcode&0x80)\n"
+	printf ("\tif (real_opcode&0x80)\n"
 		"\t\tflush_icache();\n");
 	printf("#endif\n");
 	break;
@@ -2868,11 +2868,6 @@ int main(void)
     	abort();
 
     generate_includes (stdout);
-    fprintf(stdout, "#ifdef HAVE_CFLAG_NO_REDZONE\n");
-    fprintf(stdout, "#ifndef NOFLAGS\n");
-    fprintf(stdout, "#pragma GCC option \"-mno-red-zone\"\n");
-    fprintf(stdout, "#endif\n");
-    fprintf(stdout, "#endif\n");
     generate_includes (stblfile);
     generate_includes (functblfile);
     generate_func ();

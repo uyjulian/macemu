@@ -49,6 +49,7 @@
 #if 0
 #include "natfeats.h"
 #include "disasm-glue.h"
+#include "nf_objs.h"
 #endif
 #if USE_JIT
 extern bool UseJIT;
@@ -703,7 +704,15 @@ int m68k_move2c (int regno, uae_u32 *regp)
 	 case 0x804: regs.isp = *regp; if (regs.m == 0) m68k_areg(regs, 7) = regs.isp; break;
 	 case 0x805: mmu_set_mmusr(*regp); break;
 	 case 0x806: regs.urp = *regp & MMU_ROOT_PTR_ADDR_MASK; break;
-	 case 0x807: regs.srp = *regp & MMU_ROOT_PTR_ADDR_MASK; break;
+	 case 0x807: regs.srp = *regp & MMU_ROOT_PTR_ADDR_MASK;
+		/*
+		 * assume that some different OS was loaded by some loader like loadbsd;
+		 * have to reset some things
+		 */
+#if 0 /* disabled again because it breaks FreeMint+MMU? */
+	    NFReset();
+#endif
+	    break;
 	 default:
 	    op_illg (0x4E7B);
 	    return 0;
