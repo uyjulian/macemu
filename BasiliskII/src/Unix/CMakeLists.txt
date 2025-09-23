@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.0.0...3.12)
 project(BasiliskII)
 
 # if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
@@ -8,8 +8,10 @@ project(BasiliskII)
 # endif()
 
 find_package(SDL2 REQUIRED)
+if(APPLE)
 find_library(COREFOUNDATION_LIBRARY CoreFoundation)
 find_library(IOKIT_LIBRARY IOKit)
+endif()
 include_directories(../include . ../CrossPlatform ../uae_cpu ${SDL2_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(build68k ../uae_cpu/build68k.c)
@@ -76,7 +78,7 @@ set(BasiliskII_SRCS
 	#ui src
 	../dummy/prefs_editor_dummy.cpp
 	#extra sys 
-	Darwin/sys_darwin.cpp
+	
 	main_unix.cpp
 	prefs_unix.cpp
 	../dummy/clip_dummy.cpp
@@ -99,6 +101,12 @@ set(BasiliskII_SRCS
 	#includes 
 )
 
+if(APPLE)
+list(APPEND BasiliskII_SRCS Darwin/sys_darwin.cpp)
+else()
+list(APPEND BasiliskII_SRCS sys_unix.cpp)
+endif()
+
 add_executable(BasiliskII ${BasiliskII_SRCS})
 
 set_source_files_properties(${BasiliskII_SRCS}
@@ -106,11 +114,17 @@ set_source_files_properties(${BasiliskII_SRCS}
 
 # set_property(SOURCE compemu_support.cpp APPEND_STRING PROPERTY COMPILE_FLAGS " -O0 ")
 
-target_link_libraries(BasiliskII ${COREFOUNDATION_LIBRARY} ${IOKIT_LIBRARY} ${SDL2_LIBRARIES})
+target_link_libraries(BasiliskII ${SDL2_LIBRARIES})
+
+if(APPLE)
+target_link_libraries(BasiliskII ${COREFOUNDATION_LIBRARY} ${IOKIT_LIBRARY})
+endif()
 
 # set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
+if(APPLE)
 SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -pagezero_size 0x2000 -Wl,-no_pie" )
+endif()
 
 add_definitions(-march=native)
 

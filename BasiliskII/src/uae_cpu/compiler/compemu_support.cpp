@@ -195,6 +195,7 @@ static inline int distrust_addr(void)
 #define op_illg op_illg_1
 
 #ifdef WINUAE_ARANYM
+#include <cstdarg>
 void jit_abort(const char *format, ...)
 {
 	va_list args;

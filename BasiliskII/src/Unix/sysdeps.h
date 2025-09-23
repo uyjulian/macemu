@@ -37,8 +37,10 @@
 /* Define to 1 if you have the `atanh' function. */
 #define HAVE_ATANH 1
 
+#ifdef __MACOSX__
 /* Define to 1 if you have the <AvailabilityMacros.h> header file. */
 #define HAVE_AVAILABILITYMACROS_H 1
+#endif
 
 /* Define to 1 if the system has the type `caddr_t'. */
 #define HAVE_CADDR_T 1
@@ -49,12 +51,14 @@
 /* Define to 1 if you have the <fcntl.h> header file. */
 #define HAVE_FCNTL_H 1
 
+#ifdef __MACOSX__
 /* Define if framework CoreFoundation is available. */
 #define HAVE_FRAMEWORK_COREFOUNDATION 1
 
 /* Define to 1 if you have the <IOKit/storage/IOBlockStorageDevice.h> header
    file. */
 #define HAVE_IOKIT_STORAGE_IOBLOCKSTORAGEDEVICE_H 1
+#endif
 
 /* Define to 1 if you have the `isinf' function. */
 #define HAVE_ISINF 1
@@ -69,6 +73,7 @@
 /* Define to 1 if the system has the type `loff_t'. */
 /* #undef HAVE_LOFF_T */
 
+#ifdef __MACOSX__
 /* Define if your system supports Mach exceptions. */
 #define HAVE_MACH_EXCEPTIONS 1
 
@@ -81,14 +86,16 @@
 
 /* Define if <sys/mman.h> defines MAP_ANON and mmap()'ing with MAP_ANON works.
    */
-/* #undef HAVE_MMAP_ANON */
+#define HAVE_MMAP_ANON 1
+#else
 
 /* Define if <sys/mman.h> defines MAP_ANONYMOUS and mmap()'ing with
    MAP_ANONYMOUS works. */
-/* #undef HAVE_MMAP_ANONYMOUS */
+#define HAVE_MMAP_ANONYMOUS 1
 
 /* Define if your system has a working mmap()-based memory allocator. */
-/* #undef HAVE_MMAP_VM */
+#define HAVE_MMAP_VM 1
+#endif
 
 /* Define if pthreads are available. */
 #define HAVE_PTHREADS 1
@@ -105,12 +112,16 @@
 /* Define if we know a hack to replace siginfo_t->si_addr member. */
 /* #undef HAVE_SIGCONTEXT_SUBTERFUGE */
 
+#ifndef __MACOSX__
 /* Define if your system supports extended signals. */
-/* #undef HAVE_SIGINFO_T */
+#define HAVE_SIGINFO_T 1
+#endif
 
+#ifdef __MACOSX__
 /* Define if we can ignore the fault (instruction skipping in SIGSEGV
    handler). */
 #define HAVE_SIGSEGV_SKIP_INSTRUCTION 1
+#endif
 
 /* Define to 1 if you have the `strdup' function. */
 #define HAVE_STRDUP 1

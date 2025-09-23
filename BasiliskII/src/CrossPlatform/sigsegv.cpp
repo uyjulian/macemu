@@ -932,6 +932,7 @@ static void sigsegv_handler(SIGSEGV_FAULT_HANDLER_ARGLIST)
  *  SIGSEGV handler initialization
  */
 
+#ifdef __MACOSX__
 #if defined(HAVE_SIGINFO_T)
 static bool sigsegv_do_install_handler(int sig)
 {
@@ -947,6 +948,7 @@ static bool sigsegv_do_install_handler(int sig)
 	return (signal(sig, (signal_handler)sigsegv_handler) != SIG_ERR);
 #endif
 }
+#endif
 #endif
 
 #if defined(HAVE_SIGCONTEXT_SUBTERFUGE)
