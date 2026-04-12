@@ -1406,9 +1406,9 @@ AC_CACHE_CHECK([whether we can skip instruction in SIGSEGV handler],
   ]
 )
 
-if [[ "$target_cpu" = "arm" -o "$target_cpu" = "aarch64" ]]; then
+dnl if [[ "$target_cpu" = "arm" -o "$target_cpu" = "aarch64" ]]; then
   ac_cv_have_skip_instruction=yes
-fi
+dnl fi
 
 AC_TRANSLATE_DEFINE(HAVE_SIGSEGV_SKIP_INSTRUCTION, "$ac_cv_have_skip_instruction",
   [Define if we can ignore the fault (instruction skipping in SIGSEGV handler).])
@@ -1469,7 +1469,7 @@ else
       fi
       dnl Real addressing will probably work.
       ADDRESSING_MODE="real"
-      DEFINES="$DEFINES -DREAL_ADDRESSING"
+      DEFINES="$DEFINES -DFIXED_ADDRESSING -DREAL_ADDRESSING"
       if [[ "x$ac_cv_pagezero_hack" = "xyes" ]]; then
         BLESS=Darwin/lowmem
         LDFLAGS="$LDFLAGS -pagezero_size 0x2000"
@@ -1480,7 +1480,7 @@ else
       dnl Requires VOSF screen updates
       if [[ "x$CAN_VOSF" = "xyes" ]]; then
         ADDRESSING_MODE="direct"
-        DEFINES="$DEFINES -DDIRECT_ADDRESSING"
+        DEFINES="$DEFINES -DFIXED_ADDRESSING -DDIRECT_ADDRESSING"
         break
       fi
       ;;
@@ -1644,7 +1644,7 @@ if [[ "x$HAVE_GCC27" = "xyes" -a "x$HAVE_I386" = "xyes" ]]; then
   DEFINES="$DEFINES -DUNALIGNED_PROFITABLE -DREGPARAM=\"__attribute__((regparm(3)))\""
   if [[ "x$HAVE_GAS" = "xyes" ]]; then
     ASM_OPTIMIZATIONS=i386
-    DEFINES="$DEFINES -DX86_ASSEMBLY -DOPTIMIZED_FLAGS -DSAHF_SETO_PROFITABLE"
+    DEFINES="$DEFINES -DCPU_i386 -DX86_ASSEMBLY -DOPTIMIZED_FLAGS -DSAHF_SETO_PROFITABLE"
     JITSRCS="cpuemu1_nf.cpp cpuemu2_nf.cpp cpuemu3_nf.cpp cpuemu4_nf.cpp cpuemu5_nf.cpp cpuemu6_nf.cpp cpuemu7_nf.cpp cpuemu8_nf.cpp $JITSRCS"
     CAN_JIT=yes
   fi
@@ -1653,7 +1653,7 @@ elif [[ "x$HAVE_GCC30" = "xyes" -a "x$HAVE_X86_64" = "xyes" ]]; then
   DEFINES="$DEFINES -DUNALIGNED_PROFITABLE"
   if [[ "x$HAVE_GAS" = "xyes" ]]; then
     ASM_OPTIMIZATIONS="x86-64"
-    DEFINES="$DEFINES -DX86_64_ASSEMBLY -DOPTIMIZED_FLAGS"
+    DEFINES="$DEFINES -DCPU_x86_64 -DCPU_64_BIT -DX86_64_ASSEMBLY -DOPTIMIZED_FLAGS"
     JITSRCS="cpuemu1_nf.cpp cpuemu2_nf.cpp cpuemu3_nf.cpp cpuemu4_nf.cpp cpuemu5_nf.cpp cpuemu6_nf.cpp cpuemu7_nf.cpp cpuemu8_nf.cpp $JITSRCS"
     CAN_JIT=yes
   fi
@@ -1667,13 +1667,13 @@ elif [[ "x$HAVE_GCC27" = "xyes" -a "x$HAVE_SPARC" = "xyes" -a "x$HAVE_GAS" = "xy
     case "$SPARC_TYPE" in
     SPARC_V8)
       ASM_OPTIMIZATIONS="SPARC V8 architecture"
-      DEFINES="$DEFINES -DSPARC_V8_ASSEMBLY" dnl -DOPTIMIZED_FLAGS"
+      DEFINES="$DEFINES -DCPU_sparc -DSPARC_V8_ASSEMBLY" dnl -DOPTIMIZED_FLAGS"
       CFLAGS="$CFLAGS -Wa,-Av8"
       CXXFLAGS="$CXXFLAGS -Wa,-Av8"
       ;;
     SPARC_V9)
       ASM_OPTIMIZATIONS="SPARC V9 architecture"
-      DEFINES="$DEFINES -DSPARC_V9_ASSEMBLY" dnl -DOPTIMIZED_FLAGS"
+      DEFINES="$DEFINES -DCPU_sparc -DSPARC_V9_ASSEMBLY" dnl -DOPTIMIZED_FLAGS"
       CFLAGS="$CFLAGS -Wa,-Av9"
       CXXFLAGS="$CXXFLAGS -Wa,-Av9"
       ;;
@@ -1686,16 +1686,17 @@ elif [[ "x$WANT_NATIVE_M68K" = "xyes" ]]; then
   CPUSRCS="asm_support.s"
 fi
 
-if [[ "$target_cpu" = "arm" -o "$target_cpu" = "aarch64" ]]; then
-  UAE_PATH="../uae_cpu_2021"
-else
-  UAE_PATH="../uae_cpu"
-fi
+UAE_PATH="../uae_cpu_aranym"
+dnl if [[ "$target_cpu" = "arm" -o "$target_cpu" = "aarch64" ]]; then
+dnl   UAE_PATH="../uae_cpu_2021"
+dnl else
+dnl   UAE_PATH="../uae_cpu"
+dnl fi
 
 dnl Enable JIT compiler, if possible.
 if [[ "x$WANT_JIT" = "xyes" -a "x$CAN_JIT" = "xyes" ]]; then
   JITSRCS="$JITSRCS $UAE_PATH/compiler/compemu_support.cpp $UAE_PATH/compiler/compemu_fpp.cpp compstbl.o cpustbl_nf.o"
-  DEFINES="$DEFINES -DUSE_JIT -DUSE_JIT_FPU"
+  DEFINES="$DEFINES -DJIT -DUSE_JIT -DUSE_JIT_FPU"
   
   if [[ "x$WANT_JIT_DEBUG" = "xyes" ]]; then
     if [[ "x$WANT_MON" = "xyes" ]]; then
@@ -1876,16 +1877,16 @@ for fpe in $FPE_CORE_TEST_ORDER; do
   ieee)
     case $ac_cv_c_float_format in
     IEEE*)
-      if [[ "$target_cpu" = "arm" -o "$target_cpu" = "aarch64" ]]; then
-        FPE_CORE="IEEE fpu core (MPFR)"
-        DEFINES="$DEFINES -DFPU_MPFR"
-        FPUSRCS="$UAE_PATH/fpu/fpu_mpfr.cpp"
-	    LIBS="$LIBS -lmpfr -lgmp"
-	  else
-        FPE_CORE="IEEE fpu core"
-        DEFINES="$DEFINES -DFPU_IEEE"
-        FPUSRCS="$UAE_PATH/fpu/fpu_ieee.cpp"
-	  fi
+      dnl if [[ "$target_cpu" = "arm" -o "$target_cpu" = "aarch64" ]]; then
+      dnl  FPE_CORE="IEEE fpu core (MPFR)"
+      dnl  DEFINES="$DEFINES -DFPU_MPFR -DWINUAE_ARANYM"
+      dnl  FPUSRCS="$UAE_PATH/fpu/fpu_mpfr.cpp"
+	    dnl IBS="$LIBS -lmpfr -lgmp"
+	  dnl else
+         FPE_CORE="IEEE fpu core"
+         DEFINES="$DEFINES -DFPU_IEEE -DWINUAE_ARANYM"
+         FPUSRCS="$UAE_PATH/fpu/fpu_ieee.cpp"
+	  dnl fi
       dnl Math functions not mandated by C99 standard
       AC_CHECK_FUNCS(isnanl isinfl)
       dnl Math functions required by C99 standard, but probably not
@@ -1930,10 +1931,10 @@ dnl UAE CPU sources for all non-m68k-native architectures.
 if [[ "x$WANT_NATIVE_M68K" = "xno" ]]; then
   CPUINCLUDES="-I$UAE_PATH"
   CPUSRCS="$UAE_PATH/basilisk_glue.cpp $UAE_PATH/memory.cpp $UAE_PATH/newcpu.cpp $UAE_PATH/readcpu.cpp $FPUSRCS cpustbl.cpp cpudefs.cpp $CPUSRCS $JITSRCS"
-  if [[ "$target_cpu" = "arm" -o "$target_cpu" = "aarch64" ]]; then
+  dnl if [[ "$target_cpu" = "arm" -o "$target_cpu" = "aarch64" ]]; then
     CPUSRCS="$CPUSRCS cpufunctbl.cpp"
 	DEFINES="$DEFINES -DUPDATE_UAE"
-  fi
+  dnl fi
 fi
 
 dnl Or if we have -IPA (MIPSPro compilers)
